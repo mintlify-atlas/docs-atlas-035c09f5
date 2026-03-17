@@ -1,0 +1,51 @@
+{
+  "projectType": "cli-tool",
+  "projectName": "foreman-builder",
+  "projectDescription": "A macOS CLI tool that automates the creation and management of containerized Foreman development environments using OrbStack.",
+  "theme": "aspen",
+  "primaryColor": "#73dff6",
+  "lightColor": "#37454c",
+  "darkColor": "#cfbdb2",
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Documentation",
+        "groups": [
+          {
+            "group": "Get Started",
+            "pages": ["introduction", "requirements", "installation"]
+          },
+          {
+            "group": "Commands",
+            "pages": ["commands/create", "commands/list", "commands/delete"]
+          },
+          {
+            "group": "Configuration",
+            "pages": ["configuration/config-file", "configuration/container-template"]
+          },
+          {
+            "group": "Guides",
+            "pages": ["guides/first-container", "guides/ssh-access", "guides/troubleshooting"]
+          }
+        ]
+      }
+    ]
+  },
+  "keyFeatures": [
+    "Automated Foreman dev environment creation via OrbStack containers",
+    "Interactive CLI using Cobra and BubbleTea",
+    "cloud-init based container provisioning with Rocky Linux 9",
+    "Automatic Ruby (rbenv), Node.js, and Foreman/Katello installation",
+    "Container lifecycle management (create, list, delete)",
+    "State tracking via local dotfolder (~/.foreman-builder)",
+    "Sync between OrbStack and foreman-builder tracked containers",
+    "Optional config.yml for specifying extra packages to install"
+  ],
+  "publicApiSurface": [
+    "foreman-builder create",
+    "foreman-builder list",
+    "foreman-builder delete <container-name>",
+    "config.yml (packages list)",
+    "~/.foreman-builder/containers (state file)"
+  ]
+}
