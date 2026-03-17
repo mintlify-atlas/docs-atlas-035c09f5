@@ -1,0 +1,61 @@
+---
+title: "config.yml"
+description: "Optional configuration file for specifying extra packages to install in your Foreman container."
+---
+
+You can place a `config.yml` file in the directory where you run `foreman-builder create` to customize the packages installed in your container. The file is optional — if it's missing, `foreman-builder` skips it and uses the defaults.
+
+## File structure
+
+```yaml config.yml
+packages:
+  - pkg1
+  - pkg2
+```
+
+### Fields
+
+<ParamField body="packages" type="list of strings">
+  A list of additional [dnf](https://dnf.readthedocs.io/) package names to install in the container. These are installed on top of the default packages that are always provisioned.
+</ParamField>
+
+## Example
+
+```yaml config.yml
+packages:
+  - vim
+  - tmux
+  - python3-pip
+```
+
+## Usage
+
+<Steps>
+  <Step title="Create config.yml">
+    Create a `config.yml` file in the directory you intend to run `foreman-builder create` from.
+
+    ```yaml config.yml
+    packages:
+      - vim
+      - tmux
+      - python3-pip
+    ```
+  </Step>
+  <Step title="Run foreman-builder create">
+    Run the create command from the same directory:
+
+    ```bash
+    foreman-builder create
+    ```
+
+    `foreman-builder` reads `./config.yml` automatically from the current directory.
+  </Step>
+</Steps>
+
+<Tip>
+  Run `foreman-builder create` from the directory containing your `config.yml`. The tool looks for the file at `./config.yml` relative to your working directory.
+</Tip>
+
+<Note>
+  `config.yml` is optional. If the file is not found, `foreman-builder` logs a message and continues with the default package set.
+</Note>

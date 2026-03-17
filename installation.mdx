@@ -1,0 +1,65 @@
+---
+title: "Installation"
+description: "Install foreman-builder using Go and verify your setup is working."
+---
+
+Before installing, make sure you have completed all steps on the [Requirements](/requirements) page.
+
+<Steps>
+  <Step title="Install foreman-builder">
+    Install the latest version using `go install`:
+
+    ```bash
+    go install github.com/aidenfine/foreman-builder@latest
+    ```
+
+    This downloads, compiles, and places the `foreman-builder` binary in your `$GOPATH/bin` directory (typically `~/go/bin`).
+
+    If `foreman-builder` is not found after installation, make sure `~/go/bin` is on your `PATH`:
+
+    ```bash
+    export PATH="$PATH:$(go env GOPATH)/bin"
+    ```
+
+    Add this line to your shell profile (e.g., `~/.zshrc`) to make it permanent.
+  </Step>
+
+  <Step title="Verify the installation">
+    Confirm the binary is accessible and working:
+
+    ```bash
+    foreman-builder --help
+    ```
+
+    You should see the top-level help output listing all available commands and flags.
+  </Step>
+
+  <Step title="Start OrbStack before use">
+    OrbStack must be running before you run any foreman-builder commands. foreman-builder checks OrbStack's status on startup and exits with an error if it is not active.
+
+    You can verify OrbStack is running:
+
+    ```bash
+    orbctl status
+    ```
+
+    <Warning>
+      If OrbStack is not running, foreman-builder will exit immediately with an error. Launch OrbStack from your Applications folder or menu bar before proceeding.
+    </Warning>
+  </Step>
+</Steps>
+
+<Tip>
+  The first time you run any foreman-builder command, it automatically creates the `~/.foreman-builder/` directory and a `~/.foreman-builder/containers` state file. These are used to track your containers across sessions. No manual setup is required.
+</Tip>
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Create your first container" icon="play" href="/guides/first-container">
+    Step-by-step guide to spinning up your first Foreman dev environment.
+  </Card>
+  <Card title="Command reference" icon="terminal" href="/commands/create">
+    Full reference for all CLI commands.
+  </Card>
+</CardGroup>

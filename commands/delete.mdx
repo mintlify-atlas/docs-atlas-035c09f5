@@ -1,0 +1,49 @@
+---
+title: "delete"
+description: "Deletes a container that was created by foreman-builder."
+---
+
+The `delete` command stops and permanently removes a container that was previously created with `foreman-builder create`. It also removes the container entry from the local tracking file.
+
+```bash
+foreman-builder delete <container-name>
+```
+
+## Arguments
+
+<ParamField path="container-name" type="string" required>
+  The name of the container to delete. Must be exactly one argument — the command exits with an error if zero or more than one argument is provided.
+</ParamField>
+
+## Behavior
+
+1. Looks up `<container-name>` in `~/.foreman-builder/containers`. If the container was not created by foreman-builder, the command exits with an error.
+2. Queries OrbStack for the container's current state using `orbctl info <name> --format json`.
+3. If the container is running, prompts for confirmation before proceeding:
+
+   ```
+   Container is currently running! Do you want to stop the container and delete? [y/n]
+   ```
+
+4. Stops the container with `orbctl stop <name>`, then deletes it with `orbctl delete <name> -f`.
+5. Removes the container name from `~/.foreman-builder/containers`.
+
+## Example
+
+```bash
+$ foreman-builder delete my-foreman
+Container is currently running! Do you want to stop the container and delete? [y/n] y
+Stopping my-foreman...
+Deleting my-foreman...
+Container my-foreman deleted.
+```
+
+<Warning>
+  Deletion is permanent and cannot be undone. All data inside the container will be lost.
+</Warning>
+
+## Errors
+
+- **No argument provided** — exits with an error asking for a container name.
+- **More than one argument provided** — exits with an error; exactly one container name is required.
+- **Container not tracked by foreman-builder** — exits with an error if the specified name does not appear in `~/.foreman-builder/containers`.

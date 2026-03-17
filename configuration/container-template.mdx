@@ -1,0 +1,83 @@
+---
+title: "Container template"
+description: "The cloud-init template used to provision Foreman development containers."
+---
+
+`foreman-builder` uses an embedded cloud-init template to provision containers. When you run `foreman-builder create`, the template is rendered with your configuration and written to:
+
+```
+~/.foreman-builder/confs/orbstack-foreman-<username>.yml
+```
+
+<Info>
+  The generated cloud-init config file is stored at `~/.foreman-builder/confs/orbstack-foreman-<username>.yml`, where `<username>` is your macOS username.
+</Info>
+
+## What gets installed
+
+The following are installed automatically in every container — no configuration required.
+
+### Base packages
+
+Installed via `dnf`:
+
+- `git`, `zsh`, `curl`, `wget`, `htop`
+- `gcc`, `gcc-c++`, `make`, `perl`
+- `openssl-devel`, `libffi-devel`, `readline-devel`, `zlib-devel`
+- `bzip2`, `autoconf`, `automake`, `libtool`, `patch`
+- `ansible-core`
+- `libyaml-devel` (from the CRB repo)
+
+### Node.js 22
+
+Installed via the `nodejs:22` dnf module.
+
+### Ruby 3.1.6
+
+Installed via [rbenv](https://github.com/rbenv/rbenv) and [ruby-build](https://github.com/rbenv/ruby-build). The `rbenv` PATH is added to `~/.bashrc` and `~/.profile`.
+
+### Forklift + Foreman installer
+
+[theforeman/forklift](https://github.com/theforeman/forklift) is cloned and the `katello_devel` Ansible playbook is run with the following settings:
+
+| Variable | Value |
+|---|---|
+| `foreman_repositories_environment` | `staging` |
+| `foreman_repositories_version` | `nightly` |
+| `katello_repositories_version` | `nightly` |
+| `foreman_installer_admin_password` | `changeme` |
+
+After the playbook runs, `foreman-installer` is executed with the `katello-devel` scenario.
+
+### Custom shell configuration
+
+A file is written to `/home/<username>/.bashrc.d/custom.sh` with:
+
+- `rbenv` added to `PATH`
+- `rbenv init` evaluated on shell startup
+- `ll` alias set to `ls -la`
+
+## Template variables
+
+The template is rendered using two variables derived from your environment:
+
+| Variable | Description |
+|---|---|
+| `{{ .Username }}` | Your macOS username. Used as the Linux user account name inside the container. |
+
+The following values are hardcoded in the template:
+
+| Setting | Value |
+|---|---|
+| Hostname | `foreman-dev.example.com` |
+| Foreman admin password | `changeme` |
+
+<Warning>
+  The Foreman admin password is set to `changeme` in the template. Change this before exposing your instance to any network.
+</Warning>
+
+## Provisioning time
+
+<Note>
+  Provisioning takes **15–30 minutes or more** depending on your machine. Ruby 3.1.6 is compiled from source via rbenv, and the Ansible playbook installs a full Foreman/Katello development environment.
+</Note>

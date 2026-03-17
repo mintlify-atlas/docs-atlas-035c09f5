@@ -1,0 +1,69 @@
+---
+title: "create"
+description: "Creates a new Foreman container environment using Rocky Linux 9 on amd64 architecture."
+---
+
+The `create` command provisions a new Foreman container environment. It generates a cloud-init configuration, optionally incorporating a local `config.yml`, then uses OrbStack to build the container.
+
+```bash
+foreman-builder create
+```
+
+## What it does
+
+<Steps>
+  <Step title="Resolve username">
+    Reads the current system username to use in the cloud-init config filename.
+  </Step>
+  <Step title="Prompt for container name">
+    Asks for a container name. Press Enter to accept the default.
+
+    ```
+    Container name (default foreman):
+    ```
+  </Step>
+  <Step title="Read optional config.yml">
+    Checks for a `config.yml` file in the current working directory. If present, it is merged into the generated cloud-init configuration. See [config.yml reference](/configuration/config-file) for available options.
+  </Step>
+  <Step title="Generate cloud-init config">
+    Writes a cloud-init YAML file to:
+
+    ```
+    ~/.foreman-builder/confs/orbstack-foreman-<username>.yml
+    ```
+  </Step>
+  <Step title="Create the container">
+    Runs the following OrbStack command to create the container:
+
+    ```bash
+    orb create -a amd64 -c <config-path> rocky:9 <container-name>
+    ```
+
+    The container uses **Rocky Linux 9** as the base image and is pinned to **amd64** architecture.
+  </Step>
+  <Step title="Register the container">
+    Appends the container name to `~/.foreman-builder/containers` so it is tracked by `list` and `delete`.
+  </Step>
+</Steps>
+
+## Example
+
+```bash
+$ foreman-builder create
+Container name (default foreman): my-foreman
+Generating cloud-init config...
+Creating container my-foreman...
+Container my-foreman created successfully.
+```
+
+<Note>
+  Provisioning takes several minutes. The cloud-init process installs Ruby via rbenv, runs an Ansible playbook, and sets up all Foreman dependencies. Do not interrupt the process.
+</Note>
+
+## Optional configuration
+
+Place a `config.yml` file in your current directory before running `create` to customize the packages and configuration applied during provisioning.
+
+<Tip>
+  See [config.yml reference](/configuration/config-file) for all available options.
+</Tip>

@@ -1,0 +1,79 @@
+---
+title: "Requirements"
+description: "System requirements and dependencies needed before installing foreman-builder."
+---
+
+foreman-builder has a small set of requirements. Make sure each one is in place before you install the tool.
+
+<Note>
+  foreman-builder only runs on **Apple Silicon (arm64)** Macs. Intel (amd64) Macs are not currently supported. The tool will exit with an error if run on a non-arm64 architecture.
+</Note>
+
+<Steps>
+  <Step title="macOS with Apple Silicon">
+    You need a Mac with an M-series chip (M1, M2, M3, or later). Intel-based Macs are not supported.
+
+    To confirm your architecture, run:
+
+    ```bash
+    uname -m
+    ```
+
+    The output must be `arm64`. If it shows `x86_64`, foreman-builder will not run on your machine.
+  </Step>
+
+  <Step title="Install Go">
+    foreman-builder is installed via `go install`, so Go must be available on your system.
+
+    Install Go from the official site:
+
+    <Card title="Install Go" icon="arrow-up-right" href="https://go.dev/doc/install">
+      Download and install the latest Go toolchain for macOS.
+    </Card>
+
+    After installing, verify Go is on your `PATH`:
+
+    ```bash
+    go version
+    ```
+  </Step>
+
+  <Step title="Install OrbStack">
+    foreman-builder creates and manages Linux containers using [OrbStack](https://orbstack.dev/). OrbStack must be installed before you install or run foreman-builder.
+
+    <Card title="Install OrbStack" icon="arrow-up-right" href="https://orbstack.dev/">
+      Download OrbStack for macOS.
+    </Card>
+
+    After installing, open OrbStack at least once to complete its initial setup.
+  </Step>
+
+  <Step title="Ensure OrbStack is running">
+    OrbStack must be **running** whenever you use foreman-builder commands. The tool checks `orbctl status` on startup and exits with an error if OrbStack is not active.
+
+    You can verify OrbStack is running from the command line:
+
+    ```bash
+    orbctl status
+    ```
+
+    If OrbStack is not running, launch it from your Applications folder or the menu bar before proceeding.
+  </Step>
+</Steps>
+
+## Summary
+
+<CardGroup cols={2}>
+  <Card title="Apple Silicon Mac" icon="apple">
+    arm64 architecture required. Intel (amd64) is not supported.
+  </Card>
+  <Card title="Go" icon="code" href="https://go.dev/doc/install">
+    Required to install the foreman-builder binary.
+  </Card>
+  <Card title="OrbStack" icon="box" href="https://orbstack.dev/">
+    Required for container creation and management.
+  </Card>
+  <Card title="OrbStack running" icon="circle-play">
+    Must be active before running any foreman-builder command.
+  </Card>
+</CardGroup>

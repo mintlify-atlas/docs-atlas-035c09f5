@@ -1,0 +1,69 @@
+---
+title: "SSH access"
+description: "How to SSH into a foreman-builder container using OrbStack's built-in SSH integration."
+---
+
+foreman-builder containers run inside OrbStack, which provides built-in SSH access without requiring any key configuration.
+
+## Connect to a container
+
+Use the `@orb` SSH alias with your container name:
+
+```bash
+ssh <container-name>@orb
+```
+
+For example, if your container is named `foreman`:
+
+```bash
+ssh foreman@orb
+```
+
+<Info>
+  OrbStack handles SSH authentication automatically. You do not need to generate or copy SSH keys.
+</Info>
+
+## Find your container name
+
+If you are unsure of the container name, list all containers managed by foreman-builder:
+
+```bash
+foreman-builder list
+```
+
+This prints the names of all containers that foreman-builder created.
+
+## Linux username
+
+During provisioning, foreman-builder creates a Linux user inside the container with the **same name as your macOS username**. This is what maps to the `<container-name>` portion of the SSH command — the OrbStack `@orb` alias resolves the container and logs you in as that user.
+
+For example, if your macOS username is `alice` and your container is named `foreman`:
+
+```bash
+ssh foreman@orb
+# Logs in as user 'alice' inside the container named 'foreman'
+```
+
+<Note>
+  The user has passwordless `sudo` configured, so you can run privileged commands without being prompted for a password.
+</Note>
+
+## Port forwarding
+
+OrbStack automatically forwards all container ports to `localhost` on your Mac. You do not need to configure port forwarding manually.
+
+Once provisioning is complete, Foreman is accessible in your browser at:
+
+```
+https://localhost
+```
+
+## Check cloud-init logs
+
+To monitor or review the provisioning process, read the cloud-init output log from inside the container:
+
+```bash
+ssh foreman@orb cat /var/log/cloud-init-output.log
+```
+
+This is useful for diagnosing provisioning failures or checking which step provisioning reached.

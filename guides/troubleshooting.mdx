@@ -1,0 +1,123 @@
+---
+title: "Troubleshooting"
+description: "Solutions to common issues encountered when using foreman-builder."
+---
+
+<Tip>
+  Many issues occur during or after provisioning. Before investigating further, check the cloud-init log inside your container:
+
+  ```bash
+  ssh <container-name>@orb cat /var/log/cloud-init-output.log
+  ```
+
+  This log captures all output from the provisioning process, including package installation, Ansible runs, and foreman-installer.
+</Tip>
+
+<AccordionGroup>
+  <Accordion title="Error: foreman-builder does not currently support non apple-silicon devices!">
+    foreman-builder only runs on Apple Silicon (arm64) Macs. This error means you are running it on an Intel Mac, which is not supported.
+
+    There is no workaround. foreman-builder requires an arm64 system.
+  </Accordion>
+
+  <Accordion title="Error: Orbstack must be running">
+    foreman-builder requires OrbStack to be active before you run any command.
+
+    **To fix this:**
+
+    1. Open OrbStack from your Applications folder or Spotlight.
+    2. Wait for it to finish starting up (the menu bar icon will stop animating).
+    3. Run your foreman-builder command again.
+  </Accordion>
+
+  <Accordion title="Container creation fails (orb create exits with an error)">
+    If `orb create` exits with a non-zero status, the container was not created.
+
+    **Common causes and fixes:**
+
+    - **OrbStack is not running** — start OrbStack and try again.
+    - **A container with the same name already exists** — choose a different name, or delete the existing container with `foreman-builder delete <container-name>`.
+    - **OrbStack does not have enough disk space or memory** — free up resources in OrbStack settings.
+
+    Check the OrbStack application logs for more detail if the error message is not descriptive.
+  </Accordion>
+
+  <Accordion title="Provisioning appears stuck or is taking too long">
+    Provisioning involves compiling Ruby from source via rbenv, running a full Ansible playbook, and executing `foreman-installer`. This normally takes **15–30 minutes or more** on the first run.
+
+    **To check progress**, read the cloud-init log:
+
+    ```bash
+    ssh <container-name>@orb cat /var/log/cloud-init-output.log
+    ```
+
+    Look at the last few lines to see what step is currently running. If the log has not changed in a long time and shows an error, provisioning may have failed partway through.
+
+    You can also check cloud-init status:
+
+    ```bash
+    ssh <container-name>@orb cloud-init status
+    ```
+
+    If status is `running`, provisioning is still in progress. If it is `error`, provisioning failed — check the log for details.
+  </Accordion>
+
+  <Accordion title="Cannot connect to Foreman after the container is created">
+    The container existing does not mean provisioning is complete. Foreman is only accessible once `foreman-installer` has finished.
+
+    **Steps to diagnose:**
+
+    1. Check that provisioning is done:
+       ```bash
+       ssh <container-name>@orb cloud-init status
+       ```
+       Wait for `done` before trying to access Foreman.
+
+    2. Confirm that Foreman services are running:
+       ```bash
+       ssh <container-name>@orb sudo systemctl status foreman
+       ```
+
+    3. OrbStack forwards container ports to `localhost` automatically. Make sure you are accessing `https://localhost` (not `http`).
+
+    4. Your browser may show a certificate warning due to the self-signed certificate — proceed past it to reach the login page.
+  </Accordion>
+
+  <Accordion title="Container does not appear in foreman-builder list">
+    `foreman-builder list` reads from the state file at `~/.foreman-builder/containers`. A container will not appear if:
+
+    - It was created directly with `orb create` rather than `foreman-builder create`.
+    - The state file was manually edited or deleted.
+
+    <Info>
+      The state file at `~/.foreman-builder/containers` is a plain text file with one container name per line. foreman-builder writes to it when a container is created and reads from it for `list` and `delete` operations. Containers not in this file are invisible to foreman-builder.
+    </Info>
+
+    If you need to re-register a container, add its name to `~/.foreman-builder/containers` manually.
+  </Accordion>
+
+  <Accordion title="Error: was not created with foreman-builder, foreman-builder will not delete it">
+    `foreman-builder delete` only deletes containers it created. If the container name is not in `~/.foreman-builder/containers`, foreman-builder refuses to delete it.
+
+    **To delete the container anyway**, use OrbStack directly:
+
+    ```bash
+    orb delete <container-name>
+    ```
+
+    This bypasses foreman-builder's safety check. Use with caution.
+  </Accordion>
+
+  <Accordion title="What is the Foreman admin password?">
+    The default Foreman admin password is **`changeme`**. This is set by the `katello_devel.yml` Ansible playbook during provisioning.
+
+    Log in at `https://localhost` with:
+
+    | Field    | Value      |
+    | -------- | ---------- |
+    | Username | `admin`    |
+    | Password | `changeme` |
+
+    You can change the password after logging in from the Foreman admin UI.
+  </Accordion>
+</AccordionGroup>

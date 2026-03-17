@@ -1,0 +1,33 @@
+---
+title: "list"
+description: "Lists all containers created by foreman-builder."
+---
+
+The `list` command prints the names of all containers that were created with `foreman-builder`. It reads from the local tracking file and does not query OrbStack directly, so only foreman-builder-managed containers are shown.
+
+```bash
+foreman-builder list
+```
+
+## How it works
+
+Container names are stored in `~/.foreman-builder/containers` each time `foreman-builder create` is run. The `list` command reads that file and prints each entry on its own line.
+
+<Info>
+  This command only shows containers tracked by foreman-builder. Other OrbStack containers on your system will not appear here.
+</Info>
+
+## Example
+
+```bash
+$ foreman-builder list
+foreman
+my-foreman
+staging-foreman
+```
+
+If no containers have been created yet, the command produces no output.
+
+```bash
+$ foreman-builder list
+```

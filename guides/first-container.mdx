@@ -1,0 +1,126 @@
+---
+title: "Create your first container"
+description: "Walk through the full workflow to create, provision, and access a Foreman/Katello development container using foreman-builder."
+---
+
+This guide walks you through creating a Rocky Linux 9 container with a full Foreman/Katello development stack, from installing prerequisites to accessing Foreman in your browser.
+
+<Steps>
+  <Step title="Install OrbStack">
+    foreman-builder requires [OrbStack](https://orbstack.dev) to create and manage containers. Download and install it, then make sure it is running before continuing.
+
+    You can verify OrbStack is running by checking that the OrbStack menu bar icon is visible, or by running:
+
+    ```bash
+    orb version
+    ```
+  </Step>
+
+  <Step title="Install foreman-builder">
+    Install foreman-builder using `go install`:
+
+    ```bash
+    go install github.com/aidenfine/foreman-builder@latest
+    ```
+
+    <Info>
+      foreman-builder requires Apple Silicon (arm64). It does not run on Intel Macs.
+    </Info>
+  </Step>
+
+  <Step title="(Optional) Create a config.yml">
+    If you need extra packages installed during provisioning, create a `config.yml` file in your current working directory:
+
+    ```yaml
+    packages:
+      - vim
+      - htop
+    ```
+
+    This file is optional. If it is not present, foreman-builder uses the default provisioning configuration.
+  </Step>
+
+  <Step title="Run foreman-builder create">
+    From your terminal, run:
+
+    ```bash
+    foreman-builder create
+    ```
+  </Step>
+
+  <Step title="Enter a container name">
+    foreman-builder will prompt you for a container name:
+
+    ```
+    Container name (default foreman):
+    ```
+
+    Press **Enter** to accept the default name `foreman`, or type a custom name and press **Enter**.
+
+    foreman-builder will then generate a cloud-init configuration and run `orb create` to start the container.
+  </Step>
+
+  <Step title="Wait for provisioning to complete">
+    <Warning>
+      Provisioning takes **15–30 minutes or longer**. This is expected. The process compiles Ruby from source via rbenv, runs an Ansible playbook, and executes `foreman-installer`. Do not interrupt the process.
+    </Warning>
+
+    The terminal will return to your prompt once `orb create` has started the container, but provisioning continues in the background via cloud-init.
+
+    <Tip>
+      Monitor provisioning progress by tailing the cloud-init log inside the container:
+
+      ```bash
+      ssh foreman@orb cat /var/log/cloud-init-output.log
+      ```
+
+      Replace `foreman` with your container name if you used a different one. Run this command periodically to see what step provisioning is on.
+    </Tip>
+  </Step>
+
+  <Step title="Confirm provisioning is done">
+    Provisioning is complete when the cloud-init log shows the Ansible playbook and `foreman-installer` have finished without errors. Look for output similar to:
+
+    ```
+    PLAY RECAP ********************************************************************
+    localhost : ok=... changed=... unreachable=0 failed=0
+    ```
+
+    You can also check the cloud-init status directly:
+
+    ```bash
+    ssh foreman@orb cloud-init status
+    ```
+
+    A status of `done` means provisioning completed successfully.
+  </Step>
+
+  <Step title="SSH into the container">
+    OrbStack provides built-in SSH access. Connect using your container name:
+
+    ```bash
+    ssh foreman@orb
+    ```
+
+    The Linux username inside the container matches your macOS username, which was created automatically during provisioning. No SSH key setup is required.
+  </Step>
+
+  <Step title="Access Foreman in your browser">
+    OrbStack automatically forwards container ports to `localhost`. Open your browser and navigate to:
+
+    ```
+    https://localhost
+    ```
+
+    Log in with the default admin credentials:
+
+    | Field    | Value      |
+    | -------- | ---------- |
+    | Username | `admin`    |
+    | Password | `changeme` |
+
+    <Note>
+      Your browser may show a certificate warning because the Foreman installer uses a self-signed certificate. Proceed past the warning to reach the login page.
+    </Note>
+  </Step>
+</Steps>
